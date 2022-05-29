@@ -97,6 +97,12 @@
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/js/utils.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_utils__WEBPACK_IMPORTED_MODULE_0__);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 // ==================== Canvas boilerplate code ====================
 
 var canvas = document.querySelector("canvas");
@@ -119,74 +125,71 @@ addEventListener("resize", function () {
   init();
 }); // Objects
 
-function Particle(x, y, radius, color) {
-  var _this = this;
+var Particle = /*#__PURE__*/function () {
+  function Particle(x, y, radius, color, velocity) {
+    _classCallCheck(this, Particle);
 
-  this.x = x;
-  this.y = y;
-  this.radius = radius;
-  this.color = color;
-  this.radians = Math.random() * Math.PI * 2;
-  this.velocity = 0.05;
-  this.distanceFromCenter = _utils__WEBPACK_IMPORTED_MODULE_0___default.a.randomIntFromRange(150, 220);
-  this.lastMouse = {
-    x: x,
-    y: y
-  };
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.color = color;
+    this.velocity = velocity; //Time to live
 
-  this.update = function () {
-    var lastPoint = {
-      x: _this.x,
-      y: _this.y
-    }; // move points over time
+    this.ttl = 1000;
+  }
 
-    _this.radians += _this.velocity / 2; // drag effect
+  _createClass(Particle, [{
+    key: "draw",
+    value: function draw() {
+      c.beginPath();
+      c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+      c.fillStyle = this.color;
+      c.fill();
+      c.closePath();
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      this.draw();
+      this.x += this.velocity.x;
+      this.y += this.velocity.y;
+      this.ttl--;
+    }
+  }]);
 
-    _this.lastMouse.x += (mouse.x - _this.lastMouse.x) * 0.05;
-    _this.lastMouse.y += (mouse.y - _this.lastMouse.y) * 0.05; // circular Motion
-
-    _this.x = _this.lastMouse.x + Math.cos(_this.radians) * _this.distanceFromCenter * 0.7;
-    _this.y = _this.lastMouse.y + Math.sin(_this.radians) * _this.distanceFromCenter * 0.2;
-
-    _this.draw(lastPoint);
-  };
-
-  this.draw = function (lastPoint) {
-    c.beginPath();
-    c.strokeStyle = _this.color;
-    c.lineWidth = _this.radius;
-    c.moveTo(lastPoint.x, lastPoint.y);
-    c.lineTo(_this.x, _this.y);
-    c.stroke();
-    c.closePath();
-  };
-} // Implementation
+  return Particle;
+}(); // Implementation
 
 
 var particles;
 
 function init() {
   particles = [];
-  var radius = Math.random() * 2 + 1;
-
-  for (var i = 0; i < 150; i++) {
-    particles.push(new Particle(canvas.width / 2, canvas.height / 2, radius, _utils__WEBPACK_IMPORTED_MODULE_0___default.a.randomColor(colors)));
-  } // fun click events
-
-
-  canvas.addEventListener("click", function (e) {
-    particles.forEach(function (particle) {
-      if (e.shiftKey) {
-        particle.velocity = 0.05;
-        particle.distanceFromCenter = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["randomIntFromRange"])(400, 700);
-      } else if (e.ctrlKey) {
-        particle.distanceFromCenter = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["randomIntFromRange"])(150, 220);
-      } else {
-        particle.velocity += 0.01;
-      }
-    });
-  });
   console.log(particles);
+}
+
+var hue = 0;
+var hueRadians = 0;
+var radius = Math.random() * 2 + 1;
+
+function generateRing() {
+  setTimeout(generateRing, 200);
+  hue = Math.sin(hueRadians);
+  var particleCount = 100;
+  console.log(hue * 360);
+
+  for (var i = 0; i < particleCount; i++) {
+    // full circle = pi * 2 radians
+    var radian = Math.PI * 2 / particleCount;
+    var x = mouse.x;
+    var y = mouse.y;
+    particles.push(new Particle(x, y, radius, "hsl(".concat(Math.abs(hue * 360), ", 50%, 50%)"), {
+      x: Math.cos(radian * i) * 3,
+      y: Math.sin(radian * i) * 3
+    }));
+  }
+
+  hueRadians += 0.01;
 } // Animation Loop
 
 
@@ -194,13 +197,18 @@ function animate() {
   requestAnimationFrame(animate);
   c.fillStyle = "rgba(0, 0, 0, 0.05)";
   c.fillRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(function (particle) {
+  particles.forEach(function (particle, i) {
+    if (particle.ttl < 0) {
+      particles.splice(i, 1);
+    }
+
     particle.update();
   });
 }
 
 init();
 animate();
+generateRing();
 
 /***/ }),
 

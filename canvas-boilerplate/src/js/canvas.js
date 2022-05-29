@@ -29,46 +29,31 @@ addEventListener("resize", () => {
 });
 
 // Objects
-function Particle(x, y, radius, color) {
-  this.x = x;
-  this.y = y;
-  this.radius = radius;
-  this.color = color;
-  this.radians = Math.random() * Math.PI * 2;
-  this.velocity = 0.05;
-  this.distanceFromCenter = utils.randomIntFromRange(150, 220);
-  this.lastMouse = { x: x, y: y };
+class Particle {
+  constructor(x, y, radius, color, velocity) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.color = color;
+    this.velocity = velocity;
+    //Time to live
+    this.ttl = 1000;
+  }
 
-  this.update = () => {
-    const lastPoint = {
-      x: this.x,
-      y: this.y,
-    };
-
-    // move points over time
-    this.radians += this.velocity / 2;
-
-    // drag effect
-    this.lastMouse.x += (mouse.x - this.lastMouse.x) * 0.05;
-    this.lastMouse.y += (mouse.y - this.lastMouse.y) * 0.05;
-
-    // circular Motion
-    this.x =
-      this.lastMouse.x + Math.cos(this.radians) * this.distanceFromCenter * 0.7;
-    this.y =
-      this.lastMouse.y + Math.sin(this.radians) * this.distanceFromCenter * 0.2;
-    this.draw(lastPoint);
-  };
-
-  this.draw = (lastPoint) => {
+  draw() {
     c.beginPath();
-    c.strokeStyle = this.color;
-    c.lineWidth = this.radius;
-    c.moveTo(lastPoint.x, lastPoint.y);
-    c.lineTo(this.x, this.y);
-    c.stroke();
+    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    c.fillStyle = this.color;
+    c.fill();
     c.closePath();
-  };
+  }
+
+  update() {
+    this.draw();
+    this.x += this.velocity.x
+    this.y += this.velocity.y
+    this.ttl--;
+  }
 }
 
 // Implementation
@@ -76,36 +61,44 @@ let particles;
 function init() {
   particles = [];
 
-  const radius = Math.random() * 2 + 1;
+  console.log(particles);
+}
 
-  for (let i = 0; i < 150; i++) {
+
+let hue = 0
+let hueRadians = 0;
+const radius = Math.random() * 2 + 1;
+
+function generateRing() {
+  setTimeout(generateRing, 200)
+
+  hue = Math.sin(hueRadians);
+
+  const particleCount = 100
+
+  console.log(hue * 360);
+
+
+  for (let i = 0; i < particleCount; i++) {
+    // full circle = pi * 2 radians
+    const radian = (Math.PI * 2 ) / particleCount;
+    const x = mouse.x
+    const y = mouse.y
+    
     particles.push(
       new Particle(
-        canvas.width / 2,
-        canvas.height / 2,
+        x,
+        y,
         radius,
-        utils.randomColor(colors)
-      )
-    );
-  }
+        `hsl(${Math.abs(hue * 360)}, 50%, 50%)`,
+         {
+           x: Math.cos(radian * i) * 3,
+           y: Math.sin(radian * i) * 3 
+          }, 
+        ));
 
-  // fun click events
-
-  canvas.addEventListener("click", (e) => {
-    particles.forEach((particle) => {
-      if (e.shiftKey) {
-        particle.velocity = 0.05;
-        particle.distanceFromCenter = randomIntFromRange(400, 700);
-      } else if(e.ctrlKey){
-        particle.distanceFromCenter = randomIntFromRange(150, 220);
-      } 
-      else {
-        particle.velocity += 0.01;
       }
-    });
-  });
-
-  console.log(particles);
+      hueRadians += 0.01;
 }
 
 // Animation Loop
@@ -114,10 +107,14 @@ function animate() {
   c.fillStyle = "rgba(0, 0, 0, 0.05)";
   c.fillRect(0, 0, canvas.width, canvas.height);
 
-  particles.forEach((particle) => {
-    particle.update();
-  });
+  particles.forEach((particle, i) => {
+    if(particle.ttl < 0) {
+      particles.splice(i, 1)
+    }
+   particle.update()
+  })
 }
 
 init();
 animate();
+generateRing();

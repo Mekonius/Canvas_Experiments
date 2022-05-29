@@ -1,6 +1,6 @@
 // ==================== Canvas boilerplate code ====================
 
-import utils from "./utils";
+import utils, { randomIntFromRange } from "./utils";
 
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d");
@@ -13,7 +13,7 @@ const mouse = {
   y: innerHeight / 2,
 };
 
-const colors = ["#00bdff", "#4d39ce", "#088eff"]; 
+const colors = ["#00bdff", "#4d39ce", "#088eff"];
 
 // Event Listeners
 addEventListener("mousemove", (event) => {
@@ -36,8 +36,8 @@ function Particle(x, y, radius, color) {
   this.color = color;
   this.radians = Math.random() * Math.PI * 2;
   this.velocity = 0.05;
-  this.distanceFromCenter = utils.randomIntFromRange(50, 120);
-  this.lastMouse = {x: x, y: y};
+  this.distanceFromCenter = utils.randomIntFromRange(150, 220);
+  this.lastMouse = { x: x, y: y };
 
   this.update = () => {
     const lastPoint = {
@@ -53,9 +53,12 @@ function Particle(x, y, radius, color) {
     this.lastMouse.y += (mouse.y - this.lastMouse.y) * 0.05;
 
     // circular Motion
-    this.x = this.lastMouse.x + Math.cos(this.radians) * this.distanceFromCenter;
-    this.y = this.lastMouse.y + Math.sin(this.radians) * this.distanceFromCenter;
+    this.x =
+      this.lastMouse.x + Math.cos(this.radians) * this.distanceFromCenter * 0.7;
+    this.y =
+      this.lastMouse.y + Math.sin(this.radians) * this.distanceFromCenter * 0.2;
     this.draw(lastPoint);
+
   };
 
   this.draw = (lastPoint) => {
@@ -66,16 +69,20 @@ function Particle(x, y, radius, color) {
     c.lineTo(this.x, this.y);
     c.stroke();
     c.closePath();
+
   };
 }
 
 // Implementation
+
+
 let particles;
 function init() {
   particles = [];
 
-  for (let i = 0; i < 50; i++) {
-    const radius = Math.random() * 2 + 1;
+  const radius = Math.random() * 2 + 1;
+
+  for (let i = 0; i < 150; i++) {
     particles.push(
       new Particle(
         canvas.width / 2,
@@ -85,14 +92,30 @@ function init() {
       )
     );
   }
+
+  // fun click events
+
+  canvas.addEventListener("click", (e) => {
+    particles.forEach((particle) => {
+      if (e.shiftKey) {
+        particle.velocity = 0.05;
+        particle.distanceFromCenter = randomIntFromRange(400, 700);
+      } else if(e.ctrlKey){
+        particle.distanceFromCenter = randomIntFromRange(150, 220);
+      } 
+      else {
+        particle.velocity += 0.01;
+      }
+    });
+  });
+
   console.log(particles);
 }
 
 // Animation Loop
 function animate() {
   requestAnimationFrame(animate);
-  c.fillStyle = "rgba(0, 0, 0, 0.05)";
-  c.fillRect(0, 0, canvas.width, canvas.height);
+
 
   particles.forEach((particle) => {
     particle.update();
