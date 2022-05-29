@@ -97,93 +97,80 @@
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/js/utils.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_utils__WEBPACK_IMPORTED_MODULE_0__);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 // ==================== Canvas boilerplate code ====================
 
-var canvas = document.querySelector("canvas");
-var c = canvas.getContext("2d");
+var canvas = document.querySelector('canvas');
+var c = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 var mouse = {
   x: innerWidth / 2,
   y: innerHeight / 2
 };
-var colors = ["#00bdff", "#4d39ce", "#088eff"]; // Event Listeners
+var colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66']; // Event Listeners
 
-addEventListener("mousemove", function (event) {
+addEventListener('mousemove', function (event) {
   mouse.x = event.clientX;
   mouse.y = event.clientY;
 });
-addEventListener("resize", function () {
+addEventListener('resize', function () {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
   init();
 }); // Objects
 
-function Particle(x, y, radius, color) {
-  var _this = this;
+var _Object = /*#__PURE__*/function () {
+  function Object(x, y, radius, color) {
+    _classCallCheck(this, Object);
 
-  this.x = x;
-  this.y = y;
-  this.radius = radius;
-  this.color = color;
-  this.radians = Math.random() * Math.PI * 2;
-  this.velocity = 0.05;
-  this.distanceFromCenter = _utils__WEBPACK_IMPORTED_MODULE_0___default.a.randomIntFromRange(150, 220);
-  this.lastMouse = {
-    x: x,
-    y: y
-  };
-
-  this.update = function () {
-    var lastPoint = {
-      x: _this.x,
-      y: _this.y
-    }; // move points over time
-
-    _this.radians += _this.velocity / 2; // drag effect
-
-    _this.lastMouse.x += (mouse.x - _this.lastMouse.x) * 0.05;
-    _this.lastMouse.y += (mouse.y - _this.lastMouse.y) * 0.05; // circular Motion
-
-    _this.x = _this.lastMouse.x + Math.cos(_this.radians) * _this.distanceFromCenter;
-    _this.y = _this.lastMouse.y + Math.sin(_this.radians) * _this.distanceFromCenter;
-
-    _this.draw(lastPoint);
-  };
-
-  this.draw = function (lastPoint) {
-    c.beginPath();
-    c.strokeStyle = _this.color;
-    c.lineWidth = _this.radius;
-    c.moveTo(lastPoint.x, lastPoint.y);
-    c.lineTo(_this.x, _this.y);
-    c.stroke();
-    c.closePath();
-  };
-} // Implementation
-
-
-var particles;
-
-function init() {
-  particles = [];
-
-  for (var i = 0; i < 150; i++) {
-    var radius = Math.random() * 2 + 1;
-    particles.push(new Particle(canvas.width / 2, canvas.height / 2, radius, _utils__WEBPACK_IMPORTED_MODULE_0___default.a.randomColor(colors)));
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.color = color;
   }
 
-  console.log(particles);
+  _createClass(Object, [{
+    key: "draw",
+    value: function draw() {
+      c.beginPath();
+      c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+      c.fillStyle = this.color;
+      c.fill();
+      c.closePath();
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      this.draw();
+    }
+  }]);
+
+  return Object;
+}(); // Implementation
+
+
+var objects;
+
+function init() {
+  objects = [];
+
+  for (var i = 0; i < 400; i++) {// objects.push()
+  }
 } // Animation Loop
 
 
 function animate() {
   requestAnimationFrame(animate);
-  c.fillStyle = "rgba(0, 0, 0, 0.05)";
-  c.fillRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(function (particle) {
-    particle.update();
-  });
+  c.clearRect(0, 0, canvas.width, canvas.height);
+  c.fillText('HTML CANVAS BOILERPLATE', mouse.x, mouse.y); // objects.forEach(object => {
+  //  object.update()
+  // })
 }
 
 init();
