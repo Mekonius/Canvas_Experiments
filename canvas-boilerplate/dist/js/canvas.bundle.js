@@ -128,7 +128,7 @@ function Particle(x, y, radius, color) {
   this.color = color;
   this.radians = Math.random() * Math.PI * 2;
   this.velocity = 0.05;
-  this.distanceFromCenter = _utils__WEBPACK_IMPORTED_MODULE_0___default.a.randomIntFromRange(50, 120);
+  this.distanceFromCenter = _utils__WEBPACK_IMPORTED_MODULE_0___default.a.randomIntFromRange(150, 220);
   this.lastMouse = {
     x: x,
     y: y
@@ -145,8 +145,8 @@ function Particle(x, y, radius, color) {
     _this.lastMouse.x += (mouse.x - _this.lastMouse.x) * 0.05;
     _this.lastMouse.y += (mouse.y - _this.lastMouse.y) * 0.05; // circular Motion
 
-    _this.x = _this.lastMouse.x + Math.cos(_this.radians) * _this.distanceFromCenter;
-    _this.y = _this.lastMouse.y + Math.sin(_this.radians) * _this.distanceFromCenter;
+    _this.x = _this.lastMouse.x + Math.cos(_this.radians) * _this.distanceFromCenter * 0.7;
+    _this.y = _this.lastMouse.y + Math.sin(_this.radians) * _this.distanceFromCenter * 0.2;
 
     _this.draw(lastPoint);
   };
@@ -167,12 +167,25 @@ var particles;
 
 function init() {
   particles = [];
+  var radius = Math.random() * 2 + 1;
 
-  for (var i = 0; i < 50; i++) {
-    var radius = Math.random() * 2 + 1;
+  for (var i = 0; i < 150; i++) {
     particles.push(new Particle(canvas.width / 2, canvas.height / 2, radius, _utils__WEBPACK_IMPORTED_MODULE_0___default.a.randomColor(colors)));
-  }
+  } // fun click events
 
+
+  canvas.addEventListener("click", function (e) {
+    particles.forEach(function (particle) {
+      if (e.shiftKey) {
+        particle.velocity = 0.05;
+        particle.distanceFromCenter = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["randomIntFromRange"])(400, 700);
+      } else if (e.ctrlKey) {
+        particle.distanceFromCenter = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["randomIntFromRange"])(150, 220);
+      } else {
+        particle.velocity += 0.01;
+      }
+    });
+  });
   console.log(particles);
 } // Animation Loop
 
